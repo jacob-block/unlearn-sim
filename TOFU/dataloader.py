@@ -67,6 +67,11 @@ class CustomTrainerForgetting(Trainer):
         # Here, we always need the oracle model to compute the KL distance in the evaluation time.
         self.oracle_model = self.e_prepare_deepspeed(self.oracle_model)
 
+        # self.oracle_model.eval()
+        # #set the gradients to false for every parameter
+        # for param in self.oracle_model.parameters():
+        #     param.requires_grad = False
+        # self.oracle_model.to(self.args.device)
 
     def get_train_dataloader(self):
         """
@@ -145,7 +150,7 @@ class CustomTrainerForgetting(Trainer):
 
         return model
     
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         if self.loss_type == "grad_ascent":
             forget_inputs, retain_inputs = inputs
             input_ids, labels, attention_mask = forget_inputs

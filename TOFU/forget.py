@@ -135,7 +135,7 @@ def main(cfg):
             weight_decay = cfg.weight_decay,
             # evaluation_strategy = "steps",
             # eval_steps = eval_steps,
-            evaluation_strategy="no"
+            eval_strategy="no"
     )
     
     #first get the base model architectur2e
@@ -155,8 +155,10 @@ def main(cfg):
 
     if path_found:
         print("Loading from checkpoint")
-        model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
-        oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
+        # model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
+        # oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
+        model = AutoModelForCausalLM.from_pretrained(cfg.model_path, dtype=torch.bfloat16, trust_remote_code=True)
+        oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, dtype=torch.bfloat16, trust_remote_code=True)
 
     else:
         print("Loading after merge and unload")
