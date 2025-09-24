@@ -498,6 +498,9 @@ class CustomTrainerForgetting(Trainer):
                 
                 world_size = self.accelerator.num_processes
 
+                print(f"WORLD SIZE: {world_size}")
+                print(f"Process Index: {self.accelerator.local_process_index}")
+                
                 # For some reason, Hydra is not interprating the split correctly
                 if eval_task == 'eval_log_forget':
                     split = eval_cfg.split
