@@ -4,7 +4,7 @@
 #SBATCH -t 2:00:00                # Wall time (24 hours)
 #SBATCH -N 8                       # Number of nodes
 #SBATCH --ntasks-per-node 1      # total number of tasks per node
-#SBATCH -p gh-dev                      # GPU partition
+#SBATCH -p gh                      # GPU partition
 #SBATCH -A ASC25010                # Project allocation
 
 export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
