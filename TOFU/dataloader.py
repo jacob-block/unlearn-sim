@@ -499,15 +499,17 @@ class CustomTrainerForgetting(Trainer):
                 world_size = self.accelerator.num_processes
 
                 print(f"WORLD SIZE: {world_size}")
-                print(f"Process Index: {self.accelerator.local_process_index}")
-                
+                print(f"Process Index: {self.accelerator.process_index}")
+
                 # For some reason, Hydra is not interprating the split correctly
                 if eval_task == 'eval_log_forget':
                     split = eval_cfg.split
                 print(f'Working on eval task {eval_task} with split {split}')
                 save_filename = os.path.join(curr_save_dir, f"{eval_task}.json")
 
-                save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.local_process_index}.json")
+                # save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.local_process_index}.json")
+                save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.process_index}.json")
+                
                 if os.path.exists(save_filename) and not eval_cfg.overwrite:
                     print(f"Skipping {eval_task} because {save_filename} already exists")
                     continue
@@ -538,7 +540,8 @@ class CustomTrainerForgetting(Trainer):
                 #read the saved file as json and merge them using merge_dicts
 
                 if world_size > 1:
-                    if self.accelerator.is_local_main_process:
+                    # if self.accelerator.is_local_main_process:
+                    if self.accelerator.is_main_process:
                         eval_logs = json.load(open(os.path.join(curr_save_dir, f"{eval_task}_0.json")))
 
                         for i in range(1, world_size):
@@ -561,7 +564,8 @@ class CustomTrainerForgetting(Trainer):
                         eval_logs = json.load(open(os.path.join(curr_save_dir, f"{eval_task}.json")))
                         aggregated_eval_logs[f'{eval_task}.json'] = eval_logs
                                 
-            if self.accelerator.is_local_main_process:
+            # if self.accelerator.is_local_main_process:
+            if self.accelerator.is_main_process:
 
                 aggregated_eval_logs = interleave_eval_result_dict(aggregated_eval_logs, forget_rate, large_bsz=eval_cfg.batch_size, num_processes=world_size)
                 aggregated_eval_log_filename = os.path.join(curr_save_dir, "eval_log_aggregated.json")
@@ -696,7 +700,9 @@ class CustomTrainerRetraining(Trainer):
                 print(f'Working on eval task {eval_task} with split {split}')
                 save_filename = os.path.join(curr_save_dir, f"{eval_task}.json")
 
-                save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.local_process_index}.json")
+                # save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.local_process_index}.json")
+                save_filename = save_filename if world_size == 1 else os.path.join(curr_save_dir, f"{eval_task}_{self.accelerator.process_index}.json")
+                
                 # print(save_filename)
                 if os.path.exists(save_filename) and not eval_cfg.overwrite:
                     print(f"Skipping {eval_task} because {save_filename} already exists")
@@ -720,7 +726,8 @@ class CustomTrainerRetraining(Trainer):
                 #read the saved file as json and merge them using merge_dicts
 
                 if world_size > 1:
-                    if self.accelerator.is_local_main_process:
+                    # if self.accelerator.is_local_main_process:
+                    if self.accelerator.is_main_process:
                         eval_logs = json.load(open(os.path.join(curr_save_dir, f"{eval_task}_0.json")))
 
                         for i in range(1, world_size):
@@ -743,7 +750,8 @@ class CustomTrainerRetraining(Trainer):
                         eval_logs = json.load(open(os.path.join(curr_save_dir, f"{eval_task}.json")))
                         aggregated_eval_logs[f'{eval_task}.json'] = eval_logs
                                 
-            if self.accelerator.is_local_main_process:
+            # if self.accelerator.is_local_main_process:
+            if self.accelerator.is_main_process:
 
                 aggregated_eval_logs = interleave_eval_result_dict(aggregated_eval_logs, forget_rate, large_bsz=eval_cfg.batch_size, num_processes=world_size)
                 aggregated_eval_log_filename = os.path.join(curr_save_dir, "eval_log_aggregated.json")
