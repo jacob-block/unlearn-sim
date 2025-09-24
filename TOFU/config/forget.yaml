@@ -1,5 +1,5 @@
 model_family: llama2-7b
-model_path: /scratch/10010/jacoblblock/sim-models #/ssd2/jlb9467/tofu_model
+model_path: /work/10010/jacoblblock/vista/unlearn-sim/TOFU/models/TOFU #/ssd2/jlb9467/tofu_model
 
 LoRA:
   r: 0

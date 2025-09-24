@@ -143,11 +143,11 @@ def main(cfg):
     import re
     path_found = False
     for file in os.listdir(cfg.model_path):
-        if re.search("pytorch.*\.bin", file):
+        if re.search(r"pytorch.*\.bin", file):
             path_found = True
             break
         
-        if re.search("model-*\.safetensors", file):
+        if re.search(r"model-*\.safetensors", file):
             path_found = True
             break
 
@@ -157,8 +157,8 @@ def main(cfg):
         print("Loading from checkpoint")
         # model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
         # oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, trust_remote_code = True)
-        model = AutoModelForCausalLM.from_pretrained(cfg.model_path, dtype=torch.bfloat16, trust_remote_code=True)
-        oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, dtype=torch.bfloat16, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(cfg.model_path, torch_dtype=torch.bfloat16, trust_remote_code=True)
+        oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, torch_dtype=torch.bfloat16, trust_remote_code=True)
 
     else:
         print("Loading after merge and unload")
@@ -219,7 +219,10 @@ def main(cfg):
         KL_coeff=cfg.KL_coeff,
     )
     model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
+    
+    print("Training...")
     trainer.train()
+    print("Finished training. Evaluating...")
     trainer.evaluate()
 
     #save the tokenizer
