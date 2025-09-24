@@ -161,6 +161,7 @@ def main(cfg):
         oracle_model = AutoModelForCausalLM.from_pretrained(cfg.model_path, torch_dtype=torch.bfloat16, trust_remote_code=True)
 
     else:
+        raise RuntimeError("Do not currently support loading from model_id")
         print("Loading after merge and unload")
         model = AutoModelForCausalLM.from_pretrained(model_id, use_flash_attention_2=model_cfg["flash_attention2"]=="true", torch_dtype=torch.bfloat16, device_map=device_map)
         #now use the checkpoint to add the LoRA modules
@@ -230,7 +231,9 @@ def main(cfg):
     tokenizer.save_pretrained(cfg.save_dir)
 
     #delete all "global_step*" files in the save_dir/checkpoint-*/ directories
-    if local_rank == 0:
+    global_rank = int(os.environ.get("RANK", "0"))
+    # if local_rank == 0:
+    if global_rank == 0:
         for file in Path(cfg.save_dir).glob("checkpoint-*"):
             for global_step_dir in file.glob("global_step*"):
                 #delete the directory
