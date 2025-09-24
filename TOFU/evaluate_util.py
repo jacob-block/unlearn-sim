@@ -277,9 +277,6 @@ def run_generation(cfg, batch, model, tokenizer):
 
     inputs = left_pad_tokenizer.batch_encode_plus(input_strings, add_special_tokens=True, return_tensors='pt', padding=True).to(model.device)
     
-    print(f"INPUT ID SHAPE: {inputs.input_ids.shape}")
-    print(f"ATT MASK SHAPE: {inputs.input_ids.shape}")
-
     #now generate
     torch.manual_seed(0)
     out = model.generate(inputs.input_ids, 
@@ -287,7 +284,7 @@ def run_generation(cfg, batch, model, tokenizer):
                         max_length=cfg.generation.max_length, 
                         max_new_tokens=cfg.generation.max_new_tokens, 
                         do_sample=True,
-                        use_cache=True, 
+                        use_cache=False, 
                         pad_token_id=left_pad_tokenizer.eos_token_id)
     
     strs = left_pad_tokenizer.batch_decode(out[:, inputs.input_ids.shape[-1]:], skip_special_tokens=True)
